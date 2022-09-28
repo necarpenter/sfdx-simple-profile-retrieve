@@ -20,7 +20,7 @@ export function activate(context: vscode.ExtensionContext) {
 		console.log('fileURI: '+fileURI);
 		if(fileURI){
 			console.log('fieldName before');
-			fieldName = getFieldName(fileURI);
+			//fieldName = getFieldName(fileURI);
 			console.log('fieldName:'+fieldName);
 		}else{
 			const opts = {
@@ -260,7 +260,7 @@ class MetaDataDiffer{
 	public saveChanges(){
 		let updatedDoc = this.createUpdatedDoc();
 
-		if(updatedDoc.childElementCount > 0){
+		if(updatedDoc.hasChildNodes()){
 			let updatedXMLStr = new XMLSerializer().serializeToString(updatedDoc);
 			console.log('In Save');
 			fs.writeFile(this.mainFilePath, updatedXMLStr, function(err) {
@@ -274,20 +274,30 @@ class MetaDataDiffer{
 		}
 	}
 	private createUpdatedDoc() : XMLDocument{
-		let updatedXML = new DOMImplementation().createDocument(null, null, null);
+		let updatedXML = this.oldDoc;
 		let profileNode = this.oldDoc.getElementsByTagName('Profile')[0];
+		let fieldPermissionsNode = profileNode.getElementsByTagName('fieldPermissions')[0];
+		//updatedXML.removeChild(this.oldDoc.getElementsByTagName('Profile')[0]);
 		if(this.oldNode){
 			profileNode.replaceChild(this.newNode, this.oldNode);
 		}else if(this.newNode){
 			let linebreak = updatedXML.createTextNode("\t\n");
 			let tab = updatedXML.createTextNode("\t");
-			profileNode.appendChild(linebreak);
-			profileNode.appendChild(tab);
-			profileNode.appendChild(this.newNode);
-			profileNode.appendChild(linebreak);
+			if(fieldPermissionsNode){
+				profileNode.insertBefore(linebreak,fieldPermissionsNode);
+				profileNode.insertBefore(tab,fieldPermissionsNode);
+				profileNode.insertBefore(this.newNode,fieldPermissionsNode);
+				profileNode.insertBefore(linebreak,fieldPermissionsNode);
+			}else{
+				profileNode.appendChild(linebreak);
+				profileNode.appendChild(tab);
+				profileNode.appendChild(this.newNode);
+				profileNode.appendChild(linebreak);
+			}
 		}
 		updatedXML.appendChild(profileNode);
-
+		console.log('Child Element Count: '+ updatedXML.hasChildNodes()+'\n');
+		console.log(new XMLSerializer().serializeToString(updatedXML));
 		return updatedXML;
 
 	} 
