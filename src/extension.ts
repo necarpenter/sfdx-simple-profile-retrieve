@@ -277,6 +277,7 @@ class MetaDataDiffer{
 		let updatedXML = this.oldDoc;
 		let profileNode = this.oldDoc.getElementsByTagName('Profile')[0];
 		let fieldPermissionsNode = profileNode.getElementsByTagName('fieldPermissions')[0];
+		console.log('fieldPermissionsNode: '+ new XMLSerializer().serializeToString(fieldPermissionsNode)+'\n');
 		//updatedXML.removeChild(this.oldDoc.getElementsByTagName('Profile')[0]);
 		if(this.oldNode){
 			profileNode.replaceChild(this.newNode, this.oldNode);
@@ -285,9 +286,9 @@ class MetaDataDiffer{
 			let tab = updatedXML.createTextNode("\t");
 			if(fieldPermissionsNode){
 				profileNode.insertBefore(linebreak,fieldPermissionsNode);
-				profileNode.insertBefore(tab,fieldPermissionsNode);
 				profileNode.insertBefore(this.newNode,fieldPermissionsNode);
 				profileNode.insertBefore(linebreak,fieldPermissionsNode);
+				profileNode.insertBefore(tab,fieldPermissionsNode);
 			}else{
 				profileNode.appendChild(linebreak);
 				profileNode.appendChild(tab);
